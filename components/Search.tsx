@@ -2,21 +2,20 @@
 
 import Image from "next/image"
 import SectionTitle from "./SectionTitle"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { useEffect, useState } from "react"
 
-export default function Search({ search, className }: { search?: string; className?: string }) {
-	const pathname = usePathname()
-	const router = useRouter()
+export default function Search({ className }: { className?: string }) {
 	const searchParams = useSearchParams()
+	const params = new URLSearchParams(searchParams.toString())
 
-	const [searchValue, setSearchValue] = useState(search || "")
+	const [searchValue, setSearchValue] = useState(params.get("search") || "")
 
 	useEffect(() => {
-		const params = new URLSearchParams(searchParams.toString())
+		const params = new URLSearchParams(window.location.search)
 		if (!searchValue) params.delete("search")
 		else params.set("search", searchValue)
-		router.push(pathname + "?" + params.toString())
+		history.replaceState(null, "", `${window.location.pathname}?${params.toString()}`)
 	}, [searchValue])
 
 	return (

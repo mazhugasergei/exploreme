@@ -1,6 +1,7 @@
 "use client"
 
-import useSWR, { SWRConfig } from "swr"
+import { useSearchParams } from "next/navigation"
+import useSWR from "swr"
 
 const Widget = ({ text, subtext, children }: { text: string; subtext: string; children?: JSX.Element }) => {
 	return (
@@ -16,32 +17,33 @@ const Widget = ({ text, subtext, children }: { text: string; subtext: string; ch
 	)
 }
 
-const Widgets = ({ set }: { set: "active" | "inactive" }) => {
+const Widgets = () => {
+	const searchParams = useSearchParams()
+	const params = new URLSearchParams(searchParams.toString())
+
 	const networkDataApiKey = `https://api.seistream.app/chain/network`
-
 	const fetchData: () => Promise<ChainNetwork> = async () => await fetch(networkDataApiKey).then((res) => res.json())
-
 	const { data: networkData } = useSWR("widgets-data", fetchData)
+
+	const activeTotal = `${
+		networkData
+			? params.get("set") === "active"
+				? networkData.validators.active
+				: networkData.validators.total - networkData.validators.active
+			: "---"
+	}/${networkData ? networkData.validators.total : "---"}`
+
+	const onchainApy = `${
+		networkData ? ((networkData.validators.active / networkData.validators.total) * 100).toFixed(2) + "%" : "---"
+	}`
+
+	const window = `${networkData ? networkData.window.round : "---"}`
 
 	return (
 		<>
-			<Widget
-				text={`${
-					networkData
-						? set === "active"
-							? networkData.validators.active
-							: networkData.validators.total - networkData.validators.active
-						: "---"
-				}/${networkData ? networkData.validators.total : "---"}`}
-				subtext={`${set === "active" ? "Active" : "Inactive"}/Total`}
-			/>
-			<Widget
-				text={`${
-					networkData ? ((networkData.validators.active / networkData.validators.total) * 100).toFixed(2) + "%" : "---"
-				}`}
-				subtext="Onchain APY"
-			/>
-			<Widget text={`${networkData ? networkData.window.round : "---"}`} subtext="Window">
+			<Widget text={activeTotal} subtext={`${params.get("set") === "active" ? "Active" : "Inactive"}/Total`} />
+			<Widget text={onchainApy} subtext="Onchain APY" />
+			<Widget text={window} subtext="Window">
 				<div className="max-md:hidden w-[7rem] h-[0.3125rem] bg-[#222] mt-[0.25rem]">
 					<div className="h-full bg-[#16B481]" style={{ width: `${30}%` }} />
 				</div>
@@ -50,12 +52,10 @@ const Widgets = ({ set }: { set: "active" | "inactive" }) => {
 	)
 }
 
-export default function ValidatorsStats({ set }: { set: "active" | "inactive" }) {
+export default function ValidatorsStats() {
 	return (
 		<div className="grid gap-[0.625rem] md:gap-[1.875rem] md:grid-cols-3 py-[0.625rem]">
-			{/* <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 300000 }}> */}
-			<Widgets {...{ set }} />
-			{/* </SWRConfig> */}
+			<Widgets />
 		</div>
 	)
 }
