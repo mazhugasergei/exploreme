@@ -2,14 +2,23 @@
 
 import Image from "next/image"
 import SectionTitle from "./SectionTitle"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
+import { useEffect, useState } from "react"
 
-interface Search {
-	search: string
-	setSearch: (search: string) => void
-	className?: string
-}
+export default function Search({ search, className }: { search?: string; className?: string }) {
+	const pathname = usePathname()
+	const router = useRouter()
+	const searchParams = useSearchParams()
 
-export default function Search({ search, setSearch, className }: Search) {
+	const [searchValue, setSearchValue] = useState(search || "")
+
+	useEffect(() => {
+		const params = new URLSearchParams(searchParams.toString())
+		if (!searchValue) params.delete("search")
+		else params.set("search", searchValue)
+		router.push(pathname + "?" + params.toString())
+	}, [searchValue])
+
 	return (
 		<div className={`flex justify-between gap-[2rem] ${className}`}>
 			<SectionTitle title="Validators" />
@@ -22,9 +31,10 @@ export default function Search({ search, setSearch, className }: Search) {
 					type="text"
 					placeholder="Search validator"
 					className={`${
-						search ? "w-full pr-[1.15625rem]" : "w-0 text-center pr-0"
+						searchValue ? "w-full pr-[1.15625rem]" : "w-0 text-center pr-0"
 					} focus:w-full focus:text-left focus:pr-[1.15625rem] flex-1 bg-transparent outline-none placeholder-[#DADADA]/20 text-[0.8125rem] transition`}
-					onChange={(e) => setSearch(e.target.value)}
+					value={searchValue}
+					onChange={(e) => setSearchValue(e.target.value)}
 				/>
 			</div>
 		</div>

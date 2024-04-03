@@ -1,8 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import useSWR, { SWRConfig, SWRResponse, useSWRConfig } from "swr"
-import SectionTitle from "./SectionTitle"
+import useSWR, { SWRConfig } from "swr"
 
 const Widget = ({ text, subtext, children }: { text: string; subtext: string; children?: JSX.Element }) => {
 	return (
@@ -55,9 +53,9 @@ const Widgets = ({ set }: { set: "active" | "inactive" }) => {
 export default function ValidatorsStats({ set }: { set: "active" | "inactive" }) {
 	return (
 		<div className="grid gap-[0.625rem] md:gap-[1.875rem] md:grid-cols-3 py-[0.625rem]">
-			<SWRConfig value={{ provider: () => new Map(), dedupingInterval: 300000 }}>
-				<Widgets {...{ set }} />
-			</SWRConfig>
+			{/* <SWRConfig value={{ provider: () => new Map(), dedupingInterval: 300000 }}> */}
+			<Widgets {...{ set }} />
+			{/* </SWRConfig> */}
 		</div>
 	)
 }

@@ -1,9 +1,6 @@
-interface Menu {
-	set: "active" | "inactive"
-	setSet: (set: "active" | "inactive") => void
-}
+import Link from "next/link"
 
-export default function Menu({ set, setSet }: Menu) {
+export default function Menu({ set, search }: { set: "active" | "inactive"; search?: string }) {
 	return (
 		<div className="md:border-b-[0.0625rem] border-[#222] my-[1.25rem] md:my-[2.5rem]">
 			<div className="relative isolate md:max-w-[24.5rem] max-md:bg-[#161616] max-md:rounded-[0.1875rem] mx-auto">
@@ -16,24 +13,24 @@ export default function Menu({ set, setSet }: Menu) {
 				/>
 				<ul className="grid grid-cols-2">
 					<li>
-						<button
-							className={`w-full text-[0.8125rem] md:text-[1.125rem] leading-[1.25rem] md:leading-[1.58375rem] py-[0.1875rem] md:py-[0.625rem] transition ${
+						<Link
+							href={`/?set=active${search ? `&search=${search}` : ""}`}
+							className={`block text-center text-[0.8125rem] md:text-[1.125rem] leading-[1.25rem] md:leading-[1.58375rem] py-[0.1875rem] md:py-[0.625rem] transition ${
 								set === "inactive" && "text-[#707070]"
 							} ${set === "active" && "md:text-[#4E95FF]"}`}
-							onClick={() => setSet("active")}
 						>
 							Active
-						</button>
+						</Link>
 					</li>
 					<li>
-						<button
-							className={`w-full text-[0.8125rem] md:text-[1.125rem] leading-[1.25rem] md:leading-[1.58375rem] py-[0.1875rem] md:py-[0.625rem] transition ${
+						<Link
+							href={`/?set=inactive${search ? `&search=${search}` : ""}`}
+							className={`block text-center text-[0.8125rem] md:text-[1.125rem] leading-[1.25rem] md:leading-[1.58375rem] py-[0.1875rem] md:py-[0.625rem] transition ${
 								set === "active" && "text-[#707070]"
 							} ${set === "inactive" && "md:text-[#4E95FF]"}`}
-							onClick={() => setSet("inactive")}
 						>
 							Inactive
-						</button>
+						</Link>
 					</li>
 				</ul>
 			</div>

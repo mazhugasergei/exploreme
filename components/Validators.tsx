@@ -1,6 +1,5 @@
 import Image from "next/image"
 import Link from "next/link"
-import useSWR, { SWRConfig } from "swr"
 
 const Item = ({ item }: { item: Validator }) => {
 	const rank = item.rank
@@ -111,20 +110,21 @@ const Item = ({ item }: { item: Validator }) => {
 	)
 }
 
-const Items = ({ set, search }: { set: "active" | "inactive"; search: string }) => {
+const Items = async ({ set, search = "" }: { set: "active" | "inactive"; search?: string }) => {
 	const validatorsApiKey = `https://api.seistream.app/validators`
 
-	const fetchData: () => Promise<Validator[]> = async () => await fetch(validatorsApiKey).then((res) => res.json())
-
-	const { data: validatorsData } = useSWR("validators-data", fetchData)
+	const validatorsData: Validator[] = await fetch(validatorsApiKey, { next: { revalidate: 300 } }).then((res) =>
+		res.json()
+	)
+	if (!validatorsData) return null
 
 	return (
 		<ul className="grid gap-[0.625rem]">
 			{
 				// filter set
 				(set === "active"
-					? validatorsData?.filter(({ status }) => status === "BOND_STATUS_BONDED")
-					: validatorsData?.filter(({ status }) => status === "BOND_STATUS_UNBONDING")
+					? validatorsData.filter(({ status }) => status === "BOND_STATUS_BONDED")
+					: validatorsData.filter(({ status }) => status === "BOND_STATUS_UNBONDING")
 				)
 					// filter search
 					?.filter((item) => item.description.moniker.toLowerCase().includes(search.toLowerCase()))
@@ -139,10 +139,6 @@ const Items = ({ set, search }: { set: "active" | "inactive"; search: string }) 
 	)
 }
 
-export default function Validators({ set, search }: { set: "active" | "inactive"; search: string }) {
-	return (
-		<SWRConfig value={{ provider: () => new Map(), dedupingInterval: 300000 }}>
-			<Items {...{ set, search }} />
-		</SWRConfig>
-	)
+export default function Validators({ set, search }: { set: "active" | "inactive"; search?: string }) {
+	return <Items {...{ set, search }} />
 }
